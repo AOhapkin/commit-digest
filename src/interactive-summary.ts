@@ -332,11 +332,41 @@ class InteractiveSummary {
     console.log("Эта программа поможет создать еженедельный отчет");
     console.log("по вашим Git репозиториям.\n");
 
+    // Проверяем аргументы командной строки
+    const args = process.argv.slice(2);
+    const initialRepoPath = args[0];
+
     let continueAdding = true;
 
-    while (continueAdding) {
-      await this.addRepo();
+    // Если передан путь как параметр, начинаем с него
+    if (initialRepoPath) {
+      console.log(`📁 Используем переданный путь: ${initialRepoPath}`);
 
+      if (await this.validateRepoPath(initialRepoPath)) {
+        const repoName = path.basename(initialRepoPath);
+        console.log(`\n🔍 Сканирование репозитория: ${repoName}`);
+
+        const result = await this.scanRepo(initialRepoPath);
+        if (result) {
+          this.repos.push({ name: repoName, path: initialRepoPath });
+          console.log(`✅ Репозиторий добавлен: ${repoName}`);
+
+          if (result.hasCommits) {
+            console.log(`📊 Найдено коммитов за неделю`);
+          } else {
+            console.log(`📊 Коммитов за неделю не найдено`);
+          }
+        }
+      } else {
+        console.log("❌ Ошибка: Переданный путь не является Git репозиторием");
+        console.log("   Убедитесь, что папка содержит файл .git");
+      }
+    } else {
+      // Если параметр не передан, начинаем с диалога
+      await this.addRepo();
+    }
+
+    while (continueAdding) {
       // Спрашиваем путь к следующему репозиторию
       console.log("\n📁 Введите путь к следующему репозиторию:");
       console.log("   Или нажмите Enter для завершения\n");
