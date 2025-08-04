@@ -18,13 +18,14 @@ interface CommitGroup {
 interface SummaryOptions {
   saveToFile?: boolean;
   outputPath?: string;
+  repoPath?: string;
 }
 
 class WeeklySummary {
   private git: SimpleGit;
 
-  constructor() {
-    this.git = simpleGit();
+  constructor(repoPath?: string) {
+    this.git = simpleGit(repoPath);
   }
 
   private async getCurrentUser(): Promise<string> {
@@ -164,6 +165,9 @@ class WeeklySummary {
       }
 
       console.log(`👤 Пользователь: ${username}`);
+      if (options.repoPath) {
+        console.log(`📁 Репозиторий: ${options.repoPath}`);
+      }
 
       const commits = await this.getCommitsForLastWeek(username);
       console.log(`📈 Найдено коммитов: ${commits.length}`);
@@ -188,6 +192,9 @@ export { WeeklySummary };
 
 // Запуск если файл выполняется напрямую
 if (require.main === module) {
-  const summary = new WeeklySummary();
+  const args = process.argv.slice(2);
+  const repoPath = args.find((arg) => arg.startsWith("--repo="))?.split("=")[1];
+
+  const summary = new WeeklySummary(repoPath);
   summary.generateSummary();
 }

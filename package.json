@@ -8,6 +8,8 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "weekly": "ts-node src/weekly-summary.ts",
+    "multi": "ts-node src/multi-repo-summary.ts",
+    "quick": "./scripts/quick-report.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
